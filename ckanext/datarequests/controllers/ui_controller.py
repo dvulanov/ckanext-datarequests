@@ -178,6 +178,7 @@ class DataRequestsUI(base.BaseController):
 
     def new(self):
         context = self._get_context()
+        context['ignore_auth'] = True
 
         # Basic intialization
         c.datarequest = {}
