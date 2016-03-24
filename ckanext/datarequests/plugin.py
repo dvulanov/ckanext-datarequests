@@ -31,6 +31,8 @@ from pylons import config
 def get_config_bool_value(config_name, default_value=False):
     value = config.get(config_name, default_value)
     value = value if type(value) == bool else value != 'False'
+
+    print "VALUE %s %s" %(config_name,value)
     return value
 
 
@@ -45,6 +47,9 @@ class DataRequestsPlugin(p.SingletonPlugin):
     def __init__(self, name=None):
         self.comments_enabled = get_config_bool_value('ckan.datarequests.comments', True)
         self._show_datarequests_badge = get_config_bool_value('ckan.datarequests.show_datarequests_badge')
+        self._ignore_auth = get_config_bool_value('ckan.datarequests.ignore_auth', True)
+
+        print "_IGNORE_AUTH: %s" %self._ignore_auth
 
     ######################################################################
     ############################## IACTIONS ##############################
@@ -106,6 +111,17 @@ class DataRequestsPlugin(p.SingletonPlugin):
 
         # Register this plugin's fanstatic directory with CKAN.
         tk.add_resource('fanstatic', 'datarequest')
+
+    def update_config_schema(self, schema):
+
+        ignore_missing = tk.get_validator('ignore_missing')
+        boolean_validator = tk.get_validator('boolean_validator')
+
+        schema.update({
+            'ckan.datarequests.ignore_auth': [ignore_missing, boolean_validator],
+        })
+
+        return schema
 
     ######################################################################
     ############################## IROUTES ###############################
@@ -177,5 +193,5 @@ class DataRequestsPlugin(p.SingletonPlugin):
             'get_comments_number': helpers.get_comments_number,
             'get_comments_badge': helpers.get_comments_badge,
             'get_open_datarequests_number': helpers.get_open_datarequests_number,
-            'get_open_datarequests_badge': partial(helpers.get_open_datarequests_badge, self._show_datarequests_badge)
+            'get_open_datarequests_badge': partial(helpers.get_open_datarequests_badge, self._show_datarequests_badge),
         }
