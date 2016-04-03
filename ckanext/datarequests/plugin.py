@@ -47,6 +47,8 @@ class DataRequestsPlugin(p.SingletonPlugin):
         self._show_datarequests_badge = get_config_bool_value('ckan.datarequests.show_datarequests_badge')
         self._ignore_auth = config.get('test', 'ckan.datarequests.ignore_auth')
 
+        print "_IGNORE_AUTH: %s" %self._ignore_auth
+
     ######################################################################
     ############################## IACTIONS ##############################
     ######################################################################
