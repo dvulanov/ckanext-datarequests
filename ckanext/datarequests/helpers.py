@@ -63,6 +63,7 @@ def check_access_auth(ignore_auth, action, data_dict=None):
         authorized = False
 
     print "IGNORE_AUTH: %s" %ignore_auth
+    print "ACTION: %s" %action
     print "AUTHORIZED: %s" %authorized
 
     return authorized
