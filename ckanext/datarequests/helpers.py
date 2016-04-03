@@ -62,5 +62,8 @@ def check_access_auth(ignore_auth, action, data_dict=None):
     except logic.NotAuthorized:
         authorized = False
 
+    print "IGNORE_AUTH: %s" %ignore_auth
+    print "AUTHORIZED: %s" %authorized
+
     return authorized
 
