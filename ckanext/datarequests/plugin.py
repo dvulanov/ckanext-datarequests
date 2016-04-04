@@ -194,5 +194,5 @@ class DataRequestsPlugin(p.SingletonPlugin):
             'get_comments_badge': helpers.get_comments_badge,
             'get_open_datarequests_number': helpers.get_open_datarequests_number,
             'get_open_datarequests_badge': partial(helpers.get_open_datarequests_badge, self._show_datarequests_badge),
-            'check_access_auth': partial(helpers.check_access_auth, False)
+            'check_access_auth': partial(helpers.check_access_auth, self._ignore_auth)
         }
