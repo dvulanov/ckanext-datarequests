@@ -50,10 +50,10 @@ def get_open_datarequests_badge(show_badge):
     else:
         return ''
 
-def check_access_auth(ignore_auth, action, data_dict=None):
+def check_access(action, data_dict=None):
     context = {'model': model,
                'user': c.user or c.author,
-               'ignore_auth': ignore_auth}
+               'ignore_auth': config.get('ckan.datarequests.ignore_auth', False) }
     if not data_dict:
         data_dict = {}
     try:
@@ -67,4 +67,3 @@ def check_access_auth(ignore_auth, action, data_dict=None):
     print "AUTHORIZED: %s" %authorized
 
     return authorized
-
