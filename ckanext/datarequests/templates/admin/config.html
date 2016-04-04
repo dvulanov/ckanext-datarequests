@@ -1,0 +1,23 @@
+{% ckan_extends %}
+
+{% import 'macros/form.html' as form %}
+
+{% block admin_form %}
+
+  {{ super() }}
+
+  <h3>Custom configuration options </h3>
+
+  {{ form.input('ckan.datarequests.ignore.auth', id='field-ckan.datarequests.ignore.auth', label=_('Ignore auth'), value=data['ckan.datarequests.ignore.auth'], error=errors['ckan.datarequests.ignore.auth']) }}
+
+
+{% endblock %}
+
+
+{% block admin_form_help %}
+
+  {{ super() }}
+
+  <p><strong>Test conf:</strong> An example configuration option, set from an extension.</p>
+
+{% endblock %}
