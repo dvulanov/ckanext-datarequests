@@ -54,6 +54,9 @@ def check_access(action, data_dict=None):
     context = {'model': model,
                'user': c.user or c.author,
                'ignore_auth': config.get('ckan.datarequests.ignore_auth', False) }
+
+    print "CONFIG.GET %s" %config.get('ckan.datarequests.ignore_auth')
+
     if not data_dict:
         data_dict = {}
     try:
