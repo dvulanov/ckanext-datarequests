@@ -113,9 +113,10 @@ class DataRequestsPlugin(p.SingletonPlugin):
     def update_config_schema(self, schema):
 
         ignore_missing = tk.get_validator('ignore_missing')
+        boolean_validator = tk.get_validator('boolean_validator')
 
         schema.update({
-            'ckan.datarequests.ignore_auth': [ignore_missing],
+            'ckan.datarequests.ignore_auth': [ignore_missing, boolean_validator],
         })
 
         return schema
