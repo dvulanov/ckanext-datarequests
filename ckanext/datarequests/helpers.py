@@ -62,7 +62,7 @@ def check_access(action, data_dict=None):
     except logic.NotAuthorized:
         authorized = False
 
-    print "IGNORE_AUTH: %s" %ignore_auth
+    print "IGNORE_AUTH: %s" %config.get('ckan.datarequests.ignore_auth', False)
     print "ACTION: %s" %action
     print "AUTHORIZED: %s" %authorized
 
