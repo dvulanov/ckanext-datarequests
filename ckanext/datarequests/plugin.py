@@ -47,7 +47,7 @@ class DataRequestsPlugin(p.SingletonPlugin):
     def __init__(self, name=None):
         self.comments_enabled = get_config_bool_value('ckan.datarequests.comments', True)
         self._show_datarequests_badge = get_config_bool_value('ckan.datarequests.show_datarequests_badge')
-        self._ignore_auth = get_config_bool_value('test', 'ckan.datarequests.ignore_auth')
+        self._ignore_auth = get_config_bool_value('ckan.datarequests.ignore_auth')
 
         print "_IGNORE_AUTH: %s" %self._ignore_auth
 
