@@ -25,6 +25,7 @@ import db
 from pylons import config
 
 
+
 def get_comments_number(datarequest_id):
     # DB should be intialized
     db.init_db(model)
@@ -61,5 +62,6 @@ def check_access(action, data_dict=None):
         authorized = True
     except logic.NotAuthorized:
         authorized = False
-
+ 
     return authorized
+
