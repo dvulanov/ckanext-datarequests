@@ -26,6 +26,7 @@ import ckan.lib.helpers as helpers
 import ckanext.datarequests.constants as constants
 import functools
 import re
+from pylons import config
 
 from ckan.common import request
 from urllib import urlencode
@@ -178,6 +179,7 @@ class DataRequestsUI(base.BaseController):
 
     def new(self):
         context = self._get_context()
+        context['ignore_auth'] = config.get('ckan.datarequests.ignore_auth', False)
 
         # Basic intialization
         c.datarequest = {}

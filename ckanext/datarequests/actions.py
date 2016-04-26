@@ -159,7 +159,7 @@ def datarequest_create(context, data_dict):
     # Store the data
     data_req = db.DataRequest()
     _undictize_datarequest_basic(data_req, data_dict)
-    data_req.user_id = context['auth_user_obj'].id
+    data_req.user_id = context['auth_user_obj'].id if context['auth_user_obj'] else 'anonymous'
     data_req.open_time = datetime.datetime.now()
 
     session.add(data_req)
