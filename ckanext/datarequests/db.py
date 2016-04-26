@@ -22,6 +22,8 @@ import sqlalchemy as sa
 import uuid
 
 from sqlalchemy import func
+from sqlalchemy.engine.reflection import Inspector
+from ckan.model.meta import Session
 
 DataRequest = None
 Comment = None
@@ -83,7 +85,17 @@ def init_db(model):
         )
 
         # Create the table only if it does not exist
-        datarequests_table.create(checkfirst=True)
+        if not datarequests_table.exists():
+            datarequests_table.create(checkfirst=True)
+        else:
+            from ckan.model.meta import engine
+            inspector = Inspector.from_engine(engine)
+            columns = inspector.get_columns('datarequests')
+            column_names = [column['name'] for column in columns]
+            if not 'extras' in column_names:
+                migrate_extras()
+            if not 'visibility' in column_names:
+                migrate_visibility()
 
         model.meta.mapper(DataRequest, datarequests_table,)
 
@@ -125,3 +137,23 @@ def init_db(model):
         comments_table.create(checkfirst=True)
 
         model.meta.mapper(Comment, comments_table,)
+
+
+def migrate_extras():
+    conn = Session.connection()
+
+    statements = '''
+    ALTER TABLE datarequests ADD COLUMN extras text;
+    '''
+    conn.execute(statements)
+    Session.commit()
+
+def migrate_visibility():
+    conn = Session.connection()
+
+    statements = '''
+    ALTER TABLE datarequests ADD COLUMN visibility integer;
+    '''
+
+    conn.execute(statements)
+    Session.commit()

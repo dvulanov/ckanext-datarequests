@@ -103,6 +103,7 @@ class DataRequestsUI(base.BaseController):
 
         try:
             context = self._get_context()
+            context['ignore_auth'] = config.get('ckan.datarequests.ignore_auth', False)
             page = int(request.GET.get('page', 1))
             limit = constants.DATAREQUESTS_PER_PAGE
             offset = (page - 1) * constants.DATAREQUESTS_PER_PAGE
