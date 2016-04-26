@@ -17,11 +17,16 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with CKAN Data Requests Extension. If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import constants
 import sqlalchemy as sa
 import uuid
 
 from sqlalchemy import func
+from sqlalchemy.engine.reflection import Inspector
+from ckan.model.meta import Session
+
+log = logging.getLogger(__name__)
 
 DataRequest = None
 Comment = None
@@ -83,7 +88,17 @@ def init_db(model):
         )
 
         # Create the table only if it does not exist
-        datarequests_table.create(checkfirst=True)
+        if not datarequests_table.exists():
+            datarequests_table.create(checkfirst=True)
+        else:
+            from ckan.model.meta import engine
+            log.debug('Datarequests tables already exist')
+            inspector = Inspector.from_engine(engine)
+            columns = inspector.get_columns('datarequests')
+            column_names = [column['name'] for column in columns]
+            if not 'title' in column_names:
+                log.debug('Datarequests tables need to be updated')
+                migrate()
 
         model.meta.mapper(DataRequest, datarequests_table,)
 
@@ -125,3 +140,15 @@ def init_db(model):
         comments_table.create(checkfirst=True)
 
         model.meta.mapper(Comment, comments_table,)
+
+
+def migrate():
+    log.debug('Migrating datarequests tables.')
+    conn = Session.connection()
+
+    statements = '''
+    ALTER TABLE datarequests ADD COLUMN extras;
+    '''
+    conn.execute(statements)
+    Session.commit()
+    log.info('Datarequests tables migrated')
