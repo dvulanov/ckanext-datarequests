@@ -27,6 +27,8 @@ import db
 import logging
 import validator
 
+from pylons import config
+
 c = plugins.toolkit.c
 log = logging.getLogger(__name__)
 tk = plugins.toolkit
@@ -188,9 +190,11 @@ def datarequest_create(context, data_dict):
     data_req.user_id = context['auth_user_obj'].id if context['auth_user_obj'] else 'anonymous'
     data_req.open_time = datetime.datetime.now()
 
-    user = context['user']
-    if not authz.is_sysadmin(user):
-        data_req.visibility = constants.DataRequestState.hidden.value
+    data_req.visibility = constants.DataRequestState.visible.value
+#    context['ignore_auth'] = config.get('ckan.datarequests.ignore_auth', False)
+#    user = context['user']
+#    if not authz.is_sysadmin(user):
+#        data_req.visibility = constants.DataRequestState.hidden.value
 
     session.add(data_req)
     session.commit()
