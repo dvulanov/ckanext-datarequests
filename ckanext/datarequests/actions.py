@@ -20,6 +20,7 @@
 
 import ckan.lib.base as base
 import ckan.model as model
+from ckan import authz
 import ckan.plugins as plugins
 import constants
 import datetime
@@ -28,6 +29,8 @@ import db
 import logging
 import validator
 import ckan.lib.mailer as mailer
+
+from pylons import config
 
 from pylons import config
 
@@ -66,6 +69,19 @@ def _get_package(package_id):
     except Exception as e:
         log.warn(e)
 
+def _get_visibility_from_name(visibility):
+    try:
+        return constants.DataRequestState[visibility]
+    except ValueError, e:
+        log.warn(e)
+        return constants.DataRequestState.hidden
+
+def _get_visibility_from_code(visibility_code):
+    try:
+        return constants.DataRequestState(visibility_code)
+    except ValueError, e:
+        log.warn(e)
+        return constants.DataRequestState.hidden
 
 def _dictize_datarequest(datarequest):
     # Transform time
@@ -90,6 +106,7 @@ def _dictize_datarequest(datarequest):
         'organization': None,
         'accepted_dataset': None,
         'followers': 0
+        'visibility': _get_visibility_from_code(datarequest.visibility).name,
     }
 
     if datarequest.organization_id:
@@ -100,15 +117,25 @@ def _dictize_datarequest(datarequest):
 
     data_dict['followers'] = db.DataRequestFollower.get_datarequest_followers_number(
         datarequest_id=datarequest.id)
+    if datarequest.extras:
+        data_dict.update(datarequest.extras)
 
     return data_dict
 
 
 def _undictize_datarequest_basic(data_request, data_dict):
-    data_request.title = data_dict['title']
-    data_request.description = data_dict['description']
-    organization = data_dict['organization_id']
+    params = data_dict.copy()
+    data_request.title = params.pop('title', None)
+    data_request.description = params.pop('description', None)
+    organization = params.pop('organization_id', None)
     data_request.organization_id = organization if organization else None
+
+    visibility_code = data_dict.pop('visibility', None)
+    if visibility_code:
+        visibility = _get_visibility_from_name(visibility_code)
+        data_request.visibility = visibility.value
+
+    data_request.extras = params
 
 
 def _dictize_comment(comment):
@@ -210,8 +237,14 @@ def create_datarequest(context, data_dict):
     # Store the data
     data_req = db.DataRequest()
     _undictize_datarequest_basic(data_req, data_dict)
-    data_req.user_id = context['auth_user_obj'].id
-    data_req.open_time = datetime.datetime.utcnow()
+    data_req.user_id = context['auth_user_obj'].id if context['auth_user_obj'] else 'anonymous'
+    data_req.open_time = datetime.datetime.now()
+
+    data_req.visibility = constants.DataRequestState.visible.value
+    context['ignore_auth'] = config.get('ckan.datarequests.ignore_auth', False)
+    user = context['user']
+    if context['ignore_auth'] == False and not authz.is_sysadmin(user):
+        data_req.visibility = constants.DataRequestState.hidden.value
 
     session.add(data_req)
     session.commit()    
@@ -307,7 +340,11 @@ def update_datarequest(context, data_dict):
     db.init_db(model)
 
     # Check access
-    tk.check_access(constants.UPDATE_DATAREQUEST, context, data_dict)
+    tk.check_access(constants.DATAREQUEST_UPDATE, context, data_dict)
+    user = context['user']
+    if not authz.is_sysadmin(user):
+        # only sysadmins can update visiblity
+        data_dict.pop('visibility', None)
 
     # Get the initial data
     result = db.DataRequest.get(id=datarequest_id)
@@ -407,6 +444,10 @@ def list_datarequests(context, data_dict):
     if data_dict.get('sort', None) == 'desc':
         desc = True
 
+    visibility_text = data_dict.get('visibility', None)
+    if visibility_text:
+        params['visibility'] = _get_visibility_from_name(visibility_text).value
+
     # Call the function
     db_datarequests = db.DataRequest.get_ordered_by_date(organization_id=organization_id,
                                                          user_id=user_id, closed=closed,
@@ -423,7 +464,11 @@ def list_datarequests(context, data_dict):
     no_processed_organization_facet = {}
     CLOSED = 'Closed'
     OPEN = 'Open'
-    no_processed_state_facet = {CLOSED: 0, OPEN: 0}
+    no_processed_state_facet = {CLOSED:0 , OPEN: 0}
+    no_processed_visibility_facet = {
+        constants.DataRequestState.hidden: 0,
+        constants.DataRequestState.visible: 0.
+    }
     for data_req in db_datarequests:
         if data_req.organization_id:
             # Facets
@@ -433,6 +478,9 @@ def list_datarequests(context, data_dict):
                 no_processed_organization_facet[data_req.organization_id] = 1
 
         no_processed_state_facet[CLOSED if data_req.closed else OPEN] += 1
+
+        visibility = _get_visibility_from_code(data_req.visibility)
+        no_processed_visibility_facet[visibility] += 1
 
     # Format facets
     organization_facet = []
@@ -468,6 +516,14 @@ def list_datarequests(context, data_dict):
 
     if state_facet:
         result['facets']['state'] = {'items': state_facet}
+
+    visibility_facet = [{
+        'name': facet.name,
+        'display_name': facet.name.title(),
+        'count': count
+    } for facet, count in no_processed_visibility_facet.items() if count]
+
+    result['facets']['visibility'] = {'items': visibility_facet}
 
     return result
 

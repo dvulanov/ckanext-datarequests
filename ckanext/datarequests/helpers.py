@@ -18,8 +18,12 @@
 # along with CKAN Data Requests Extension. If not, see <http://www.gnu.org/licenses/>.
 
 import ckan.model as model
+import ckan.logic as logic
 import ckan.plugins.toolkit as tk
+from ckan.common import c
 import db
+from pylons import config
+
 
 from ckan.common import c
 
@@ -54,3 +58,18 @@ def get_open_datarequests_badge(show_badge):
                                  {'comments_count': get_open_datarequests_number()})
     else:
         return ''
+
+def check_access(action, data_dict=None):
+    context = {'model': model,
+               'user': c.user or c.author,
+               'ignore_auth': config.get('ckan.datarequests.ignore_auth', False) }
+    if not data_dict:
+        data_dict = {}
+    try:
+        logic.check_access(action, context, data_dict)
+        authorized = True
+    except logic.NotAuthorized:
+        authorized = False
+ 
+    return authorized
+
