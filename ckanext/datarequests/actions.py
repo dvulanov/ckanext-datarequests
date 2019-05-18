@@ -105,8 +105,8 @@ def _dictize_datarequest(datarequest):
         'user': _get_user(datarequest.user_id),
         'organization': None,
         'accepted_dataset': None,
-        'followers': 0
-        'visibility': _get_visibility_from_code(datarequest.visibility).name,
+        'followers': 0,
+        'visibility': _get_visibility_from_code(datarequest.visibility).name
     }
 
     if datarequest.organization_id:
@@ -340,7 +340,7 @@ def update_datarequest(context, data_dict):
     db.init_db(model)
 
     # Check access
-    tk.check_access(constants.DATAREQUEST_UPDATE, context, data_dict)
+    tk.check_access(constants.UPDATE_DATAREQUEST, context, data_dict)
     user = context['user']
     if not authz.is_sysadmin(user):
         # only sysadmins can update visiblity
@@ -446,7 +446,7 @@ def list_datarequests(context, data_dict):
 
     visibility_text = data_dict.get('visibility', None)
     if visibility_text:
-        params['visibility'] = _get_visibility_from_name(visibility_text).value
+        data_dict['visibility'] = _get_visibility_from_name(visibility_text).value
 
     # Call the function
     db_datarequests = db.DataRequest.get_ordered_by_date(organization_id=organization_id,
