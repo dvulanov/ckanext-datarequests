@@ -216,8 +216,8 @@ class DataRequestsPlugin(p.SingletonPlugin):
             'get_open_datarequests_number': helpers.get_open_datarequests_number,
             'get_open_datarequests_badge': partial(helpers.get_open_datarequests_badge, self._show_datarequests_badge),
             'get_plus_icon': get_plus_icon,
-            'is_following_datarequest': helpers.is_following_datarequest
-            'check_access': helpers.check_access,
+            'is_following_datarequest': helpers.is_following_datarequest,
+            'check_access': helpers.check_access
         }
 
     ######################################################################
