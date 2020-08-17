@@ -150,7 +150,12 @@ class DataRequestsUI(base.BaseController):
             if include_organization_facet is True:
                 c.facet_titles['organization'] = tk._('Organizations')
 
-            return tk.render(file_to_render)
+            extra_vars = {}
+            if c.user_dict:
+                extra_vars.update({'user_dict': c.user_dict})
+            if c.group_type:
+                extra_vars.update({'group_type': c.group_type})
+            return tk.render(file_to_render, extra_vars=extra_vars)
         except ValueError as e:
             # This exception should only occur if the page value is not valid
             log.warn(e)
@@ -273,6 +278,7 @@ class DataRequestsUI(base.BaseController):
         context = self._get_context()
         c.group_dict = tk.get_action('organization_show')(context, {'id': id})
         url_func = functools.partial(org_datarequest_url, id=id)
+        c.group_type = 'organization'
         return self._show_index(None, id, False, url_func, 'organization/datarequests.html')
 
     def user_datarequests(self, id):
