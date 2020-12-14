@@ -27,7 +27,7 @@ then itself be extended to add/remove blocks of functionality. #}
 
 {% block offering_organization %}
   <div class="control-group">
-    <label for="field-organizations" class="control-label">{{ _('Organization') }}</label>
+    <label for="field-organizations" class="control-label">{{ _('Functional unit') }}</label>
     <div class="controls">
       <select id="field-organizations" name="organization_id" data-module="autocomplete">
         {% if h.check_config_permission('create_unowned_dataset') %}
