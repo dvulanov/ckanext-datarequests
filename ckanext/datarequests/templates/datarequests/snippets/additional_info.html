@@ -27,8 +27,24 @@
             <td class="dataset-details" title="{{ datarequest.close_time }}">{{ h.calculate_time_passed_comment(datarequest.close_time) if datarequest.close_time else _('Not closed yet') }}</td>
           </tr>
         {% endblock %}
-
+        
         {% block additional_fields %}
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Unit') }}</th>
+            <td class="dataset-details" title="{{ datarequest.requesting_unit }}">{{ datarequest.requesting_unit if datarequest.requesting_unit else None }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Purpose') }}</th>
+            <td class="dataset-details" title="{{ datarequest.requesting_purpose }}">{{ datarequest.requesting_purpose if datarequest.requesting_purpose else None }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Type') }}</th>
+            <td class="dataset-details" title="{{ datarequest.requesting_type }}">{{ datarequest.requesting_type if datarequest.requesting_type else None }}</td>
+          </tr>
+          <tr>
+            <th scope="row" class="dataset-label">{{ _('Deadline') }}</th>
+            <td class="dataset-details" title="{{ datarequest.deadine }}">{{ datarequest.requesting_deadline if datarequest.requesting_deadline else None }}</td>
+          </tr>
         {% endblock %}
 
         {% if datarequest.closed %}

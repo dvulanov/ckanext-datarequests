@@ -22,10 +22,7 @@ then itself be extended to add/remove blocks of functionality. #}
     {{ form.markdown('description', id='field-description', label=_('Description'), placeholder=_('eg. Data Request description'), value=description, error=errors['Description'], is_required=true) }}
   {% endblock %}
 
-  {% block additional_fields %}
-  {% endblock %}
-
-{% block offering_organization %}
+  {% block offering_organization %}
   <div class="control-group">
     <label for="field-organizations" class="control-label">{{ _('Functional unit') }}</label>
     <div class="controls">
@@ -40,6 +37,28 @@ then itself be extended to add/remove blocks of functionality. #}
       </select>
     </div>
   </div>
+{% endblock %}
+
+{% block additional_fields %}
+  <div class="control-group">
+    <div class="controls">
+      {{ form.select('requesting_unit', label=_('Unit'), options=[{'name':'MPS', 'value': 'MPS'},{'name': 'Supply', 'value': 'Supply'},{'name': 'Program', 'value': 'Program'},{'name': 'Operations', 'value': 'Operations'},{'name': 'External Relations', 'value': 'External Relations'}], selected=data.requesting_unit, error=errors.hidden, is_required=true) }}
+    </div>
+  </div>
+
+  <div class="control-group">
+    <div class="controls">
+      {{ form.select('requesting_purpose', label=_('Purpose'), options=[{'name':'Internal Utilization', 'value': 'Internal Utilization'},{'name': 'External Sharing', 'value': 'External Sharing'}], selected=data.requesting_purpose, error=errors.hidden, is_required=true) }}
+    </div>
+  </div>
+
+  <div class="control-group">
+    <div class="controls">
+      {{ form.select('requesting_type', label=_('Type'), options=[{'name':'Data', 'value': 'Data'},{'name': 'Map', 'value': 'Map'},{'name': 'Dashboard', 'value': 'Dashboard'},{'name': 'Other Support', 'value': 'Other Support'}], selected=data.requesting_type, error=errors.hidden, is_required=true) }}
+    </div>
+  </div>
+
+  {{ form.input('requesting_deadline', id='field-deadline', label=_('Deadline'), placeholder=_('eg. specific date'), value=data.requesting_deadline, classes=['control-full', 'control-medium'], is_required=true) }}
 {% endblock %}
 
 {% block visibility %}
